@@ -97,7 +97,7 @@ def registerUser(request):
            }
 
         )
-
+        # print(message)
         email_message=EmailMessage(email_subject,message,settings.EMAIL_HOST_USER,[data['email']])
         EmailThread(email_message).start()
         message={'detail':'Activate your account please check the mail'}
