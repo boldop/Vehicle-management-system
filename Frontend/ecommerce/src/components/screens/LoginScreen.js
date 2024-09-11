@@ -24,6 +24,7 @@ function LoginScreen() {
   const [email, setEmail] = useState("");
   const [pass1, setPass1] = useState("");
   const [show, changeshow] = useState("fa fa-eye-slash");
+  const [mode, setMode] = useState("user");
 
   const location = useLocation();
   const redirect = location.search ? location.search.split("=")[1] : "/";
@@ -36,7 +37,11 @@ function LoginScreen() {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    dispatch(login(email, pass1));
+    if (email === "admin@gmail.com" && pass1 === "admin" && mode === "admin") {
+      window.location.href = "http://localhost:3000/#/ownersc";
+    } else {
+      dispatch(login(email, pass1));
+    }
   };
 
   const showPassword = () => {
@@ -48,10 +53,6 @@ function LoginScreen() {
       x.type = "password";
       changeshow("fa fa-eye-slash");
     }
-  };
-
-  const handleRedButtonClick = () => {
-    window.location.href = "http://localhost:3000/#/ownersc";
   };
 
   return (
@@ -107,19 +108,23 @@ function LoginScreen() {
                       />
                     </InputGroup>
                   </Form.Group>
+                  <Form.Group className="mb-3" controlId="mode">
+                    <Form.Label>Mode</Form.Label>
+                    <Form.Select
+                      value={mode}
+                      onChange={(e) => setMode(e.target.value)}
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </Form.Select>
+                  </Form.Group>
 
                   <div className="d-grid gap-2">
                     <Button className="btn btn-md btn-success" type="submit">
                       {" "}
                       Login{" "}
                     </Button>
-                    <Button
-                      className="btn btn-md"
-                      style={{ backgroundColor: "red", border: "none" }}
-                      onClick={handleRedButtonClick}
-                    >
-                      Go to AdminPannel
-                    </Button>
+                    
                   </div>
                 </Form>
                 <Row className="py-3">

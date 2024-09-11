@@ -30,6 +30,10 @@ export default function App() {
         </Routes>
         <Routes>
           <Route exact path="/signup" element={<SignupScreen />}></Route>
+          <Route path="/payment" element={<PaymentScreen />} />
+          <Route path="/esewaVerify" element={<EsewaVerificationScreen />} />
+          <Route path="/orderSuccess" element={<SuccessScreen />} />
+  <Route path="/codConfirm" element={<CashOnDeliveryConfirmationScreen />} />
         </Routes>
         <Routes>
           <Route exact path="/ownersc" element={<OwnerScreen />}></Route>
@@ -38,15 +42,10 @@ export default function App() {
         <Routes>
           <Route exact path="/cart/:id?" element={<CartScreen />}></Route>
         </Routes>
-        <Routes>
-          <Route path="/payment" element={<PaymentScreen />} />
-          <Route path="/esewaVerify" element={<EsewaVerificationScreen />} />
-          
-        </Routes>
+   
         <Routes>
   {/* Other routes */}
-  <Route path="/orderSuccess" element={<SuccessScreen />} />
-  <Route path="/codConfirm" element={<CashOnDeliveryConfirmationScreen />} />
+  
 </Routes>
       </Router>
     </>

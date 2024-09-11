@@ -12,13 +12,30 @@ function CashOnDeliveryConfirmationScreen() {
   });
   const navigate = useNavigate();
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (paymentMethod === "eSewa") {
       navigate("/esewaVerify");
     } else if (paymentMethod === "COD") {
-      // Handle COD submission logic here, e.g., saving details or navigating
-      console.log("COD Details:", codDetails);
-      navigate("/orderSuccess"); // Navigate to the success screen
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/cod-details/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(codDetails),
+        });
+        
+        if (!response.ok) {
+          // Attempt to parse error details
+          const errorData = await response.json();
+          throw new Error(`HTTP error! Status: ${response.status}. Message: ${errorData.detail || "Unknown error"}`);
+        }
+        
+        navigate("/orderSuccess"); // Navigate to the success screen
+      } catch (error) {
+        console.error("Error saving COD details:", error);
+        alert(`Failed to save COD details. Error: ${error.message}`);
+      }
     }
   };
 

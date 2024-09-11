@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ecomapp',
     'rest_framework',
-    "corsheaders",
+    'corsheaders',
+    'django_extensions',
     'rest_framework_simplejwt',
 ]
 
@@ -210,4 +211,4 @@ MEDIA_ROOT= 'static/images'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGIN = True
+CORS_ALLOW_ALL_ORIGINS = True

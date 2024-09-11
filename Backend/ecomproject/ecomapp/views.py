@@ -30,7 +30,6 @@ class EmailThread(threading.Thread):
     def run(self):
         self.email_message.send()
 
-# Create your views here.
 @api_view(['GET'])
 def getRoutes(request):
     return Response('Hello Anees')
@@ -87,7 +86,6 @@ def registerUser(request):
     try:
         user= User.objects.create(first_name=data['fname'],last_name=data['lname'],username=data['email'],email=data['email'],password=make_password(data['password']),is_active=False)
       
-        # generate token for sending mail
         email_subject="Activate Your Account"
         message=render_to_string(
             "activate.html",
@@ -99,7 +97,7 @@ def registerUser(request):
            }
 
         )
-        # print(message)
+
         email_message=EmailMessage(email_subject,message,settings.EMAIL_HOST_USER,[data['email']])
         EmailThread(email_message).start()
         message={'detail':'Activate your account please check the mail'}
@@ -124,56 +122,44 @@ class ActivateAccountView(View):
             return render(request,"activatesuccess.html")
         else:
             return render(request,"activatefail.html")   
-        
 
-import hmac
-import hashlib
-from django.conf import settings
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CODDetails
+from .serializer import CODDetailsSerializer
 
-def generate_esewa_signature(fields, secret_key):
-    # Sort the fields alphabetically by their keys
-    sorted_fields = sorted(fields.items())
+@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
+def cod_details(request):
+    if request.method == 'POST':
+        serializer = CODDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    # Create the signing string by concatenating the field names and their values
-    signing_string = ';'.join([f'{key}={value}' for key, value in sorted_fields])
+    elif request.method == 'GET':
+        cod_details = CODDetails.objects.all()
+        serializer = CODDetailsSerializer(cod_details, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
-    # Generate HMAC-SHA256 signature
-    signature = hmac.new(
-        key=secret_key.encode('utf-8'),  # Secret key from eSewa
-        msg=signing_string.encode('utf-8'),  # The signing string
-        digestmod=hashlib.sha256  # HMAC-SHA256 algorithm
-    ).hexdigest()
+    elif request.method == 'DELETE':
+        id = request.query_params.get('id')
+        try:
+            cod_detail = CODDetails.objects.get(id=id)
+            cod_detail.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except CODDetails.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     
-    return signature
-
-# Example usage
-def get_esewa_payment_data():
-    secret_key = settings.ESEWA_SECRET_KEY  # Get secret key from Django settings
-    
-    # Fields you want to include in the signature (make sure they match signed_field_names)
-    fields = {
-        'total_amount': '1000',
-        'transaction_uuid': 'unique-transaction-id',
-        'product_code': 'EPAYTEST',
-        # You can add more fields if necessary
-    }
-    
-    # Generate signature
-    signature = generate_esewa_signature(fields, secret_key)
-    
-    # Add the signature to the form data to be sent to eSewa
-    form_data = {
-        'amount': '1000',
-        'tax_amount': '0',
-        'total_amount': '1000',
-        'transaction_uuid': 'unique-transaction-id',
-        'product_code': 'EPAYTEST',
-        'product_service_charge': '0',
-        'product_delivery_charge': '0',
-        'success_url': 'http://localhost:3000/paymentSuccess',
-        'failure_url': 'http://localhost:3000/paymentFailed',
-        'signed_field_names': 'total_amount,transaction_uuid,product_code',
-        'signature': signature  # Add generated signature
-    }
-    
-    return form_data
+    elif request.method in ['PUT', 'PATCH']:
+        id = request.query_params.get('id')
+        try:
+            cod_detail = CODDetails.objects.get(id=id)
+            serializer = CODDetailsSerializer(cod_detail, data=request.data, partial=(request.method == 'PATCH'))
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except CODDetails.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

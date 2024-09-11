@@ -33,7 +33,7 @@ function CartScreen() {
     dispatch(removeFromCart(id));
   };
   const checkoutHandler = () => {
-    navigate("/payment");
+    navigate("/codConfirm");
   };
   
 

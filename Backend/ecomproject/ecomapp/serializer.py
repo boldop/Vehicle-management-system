@@ -43,3 +43,12 @@ class UserSerializerWithToken(UserSerializer):
     def get_token(self,obj):
         token=RefreshToken.for_user(obj)
         return str(token.access_token)
+    
+    
+from rest_framework import serializers
+from .models import CODDetails
+
+class CODDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CODDetails
+        fields = '__all__'
